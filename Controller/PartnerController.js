@@ -1,7 +1,7 @@
 const Partner = require("../Model/Partner");
 const bcrypt = require("bcryptjs");
 const isEmpty = require("../Validator/IsEmpty");
-
+const fs = require("fs");
 const path = require("path");
 const partnerController = {};
 
@@ -40,15 +40,37 @@ partnerController.getParterById = async (req, res) => {
 //UPDATE partner
 partnerController.update = async (req, res) => {
   const { id } = req.params;
+  const partnerToUpdate = req.body;
+  console.log("id", id)
+  console.log('partner', partnerToUpdate )
 
-  const partnerToUpdate = JSON.parse(req.body.editPartner);
 
-  if (req.file) {
-    const imagePath = req.file.path.replace(/\\/g, "/");
-    const photoPath = `http://localhost:${process.env.PORT}/partners/${imagePath}`;
-    partnerToUpdate.photo = photoPath;
+const image = partnerToUpdate.photoURL
+console.log('image', image )
+  if (typeof image === 'string') {
+    const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
+    const imageBuffer = Buffer.from(base64Data, "base64");
+  
+    const timestamp = Date.now();
+    const imageFileName = `${timestamp}_${id}.png`;
+    const imageFolderPath = path.join("assets", "partners");
+    const imagePath = path.join(
+      __dirname,
+      "..",
+      imageFolderPath,
+      imageFileName
+    );
+  
+    if (!fs.existsSync(imageFolderPath)) {
+      fs.mkdirSync(imageFolderPath, { recursive: true });
+    }
+  
+    fs.writeFileSync(imagePath, imageBuffer);
+  
+    partnerToUpdate.photoURL = path.join(imageFolderPath, imageFileName).replace(/\\/g, "/");
   }
-
+  
+  
   if (!isEmpty(partnerToUpdate.password)) {
     const hashedPaswword = await bcrypt.hash(partnerToUpdate.password, 10);
     partnerToUpdate.password = hashedPaswword;
