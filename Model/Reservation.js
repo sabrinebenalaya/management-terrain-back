@@ -12,8 +12,8 @@ const reservationSchema = mongoose.Schema({
     required: true,
   },
   phone: { required: true, type: Number },
-  date: { type: Date, required: true },
-  timeSlot: { type: String, required: true },
+  start: { type: Date, required: true },
+  end: { type: Date, required: true },
   confirmation: { type: Boolean, default: false },
 });
 
@@ -24,8 +24,8 @@ reservationSchema.pre('save', async function(next) {
   const existingReservation = await Reservation.findOne({
     
     terrain: this.terrain,
-    date: this.date,
-    timeSlot: this.timeSlot
+    start: this.start,
+    end: this.end
   });
 
   if (existingReservation) {
