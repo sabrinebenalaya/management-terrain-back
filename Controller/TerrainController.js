@@ -111,7 +111,7 @@ terrainController.updatePhoto = async (req, res) => {
         const base64Data = imageUrl.replace(/^data:image\/\w+;base64,/, "");
         const imageBuffer = Buffer.from(base64Data, "base64");
 
-        const timestamp = Date.now();
+         const timestamp = Date.now();
         const imageFileName = `${timestamp}_${id}.png`;
         const imageFolderPath = path.join("assets", "terrains");
         const imagePath = path.join(

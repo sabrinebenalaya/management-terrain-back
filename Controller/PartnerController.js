@@ -94,4 +94,57 @@ console.log('image', image )
   }
 };
 
+
+partnerController.updatePhoto = async (req, res) => {
+  const { id } = req.params;
+  const { image } = req.body;
+
+  try {
+    const partnerToUpdate = await Partner.findById(id);
+    console.log("partnerToUpdate", partnerToUpdate);
+    if (!partnerToUpdate) {
+      return res.status(404).json("Partner not found ⚠️");
+    }
+
+    if (image && Array.isArray(image)) {
+      const updatedImages = {};
+
+   
+        const base64Data = imageUrl.replace(/^data:image\/\w+;base64,/, "");
+        const imageBuffer = Buffer.from(base64Data, "base64");
+
+         const timestamp = Date.now();
+        const imageFileName = `${timestamp}_${id}.png`;
+        const imageFolderPath = path.join("assets", "terrains");
+        const imagePath = path.join(
+          __dirname,
+          "..",
+          imageFolderPath,
+          imageFileName
+        );
+
+        if (!fs.existsSync(imageFolderPath)) {
+          fs.mkdirSync(imageFolderPath, { recursive: true });
+        }
+
+        fs.writeFileSync(imagePath, imageBuffer);
+
+        updatedImages.push(
+          path.join(imageFolderPath, imageFileName).replace(/\\/g, "/")
+        );
+      
+
+        partnerToUpdate.photoURL = updatedImages;
+    }
+
+    const updatedPartner = await partnerToUpdate.save();
+
+    res.status(200).json(updatedPartner);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+
 module.exports = partnerController;

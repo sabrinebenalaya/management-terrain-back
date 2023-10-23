@@ -121,8 +121,10 @@ reservationController.updateReservation = async (req, res) => {
 reservationController.deleteReservation = async (req, res) => {
   try {
     const reservation = await Reservation.findByIdAndDelete(req.params.id);
+    const reservations = await Reservation.find({ partner: reservation.partner });
+
     reservation
-      ? res.status(200).json("Reservation deleted Successfully 😊")
+      ? res.status(200).json(reservation._id)
       : res.status(404).json("Reservation not found 😔");
   } catch (err) {
     res.status(500).json({ message: err.message });
