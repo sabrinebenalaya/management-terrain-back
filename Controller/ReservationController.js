@@ -5,11 +5,12 @@ const reservationController = {};
 // Create a reservation
 reservationController.createReservation = async (req, res) => {
   try {
-    const { partner, terrain, phone, start, end, confirmation } = req.body;
+    const { partner, selectedTerrain, phone, start, end, confirmation } =
+      req.body;
 
     const reservation = new Reservation({
       partner,
-      terrain,
+      terrain: selectedTerrain,
       phone,
       start,
       end,
@@ -29,12 +30,9 @@ reservationController.getAllReservationsWithDate = async (req, res) => {
 
   try {
     const reservations = await Reservation.find({
-      $and: [
-        { start: { $lte: start } },
-        { end: { $gte: end } }
-      ]
+      $and: [{ start: { $lte: start } }, { end: { $gte: end } }],
     });
-    
+
     reservations
       ? res.status(200).json(reservations)
       : res.status(404).json("No Reservation was found 😔");
@@ -87,7 +85,8 @@ reservationController.getReservationsByPartner = async (req, res) => {
 reservationController.updateReservation = async (req, res) => {
   console.log("body", req.body);
   try {
-    let { partner, terrain, phone, start, end, confirmation } = req.body;
+    let { partner, selectedTerrain, phone, start, end, confirmation } =
+      req.body;
 
     const reservationToUpdate = await Reservation.findById(req.params.id);
     console.log("reservationToUpdate", reservationToUpdate);
@@ -100,7 +99,7 @@ reservationController.updateReservation = async (req, res) => {
       req.params.id,
       {
         partner,
-        terrain,
+        terrain: selectedTerrain,
         phone,
         end,
         start,
@@ -121,7 +120,9 @@ reservationController.updateReservation = async (req, res) => {
 reservationController.deleteReservation = async (req, res) => {
   try {
     const reservation = await Reservation.findByIdAndDelete(req.params.id);
-    const reservations = await Reservation.find({ partner: reservation.partner });
+    const reservations = await Reservation.find({
+      partner: reservation.partner,
+    });
 
     reservation
       ? res.status(200).json(reservation._id)
